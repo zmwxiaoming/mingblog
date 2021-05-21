@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="c1AtNSx989giXhCFlh6taCS26XAVC_gIrKUipoGImJI" />
+
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="ZSXXWUOgnR" />
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/favicon-32x32.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="postgresql,sql," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文介绍postgresql的部分基本数据类型和基本操作,包括时间类型,字符串操作,数组操作等">
+<meta name="keywords" content="postgresql,sql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="postgresql入门详细总结">
+<meta property="og:url" content="https://www.iteway.com/2018/01/19/postgresql入门详细总结/index.html">
+<meta property="og:site_name" content="JET明">
+<meta property="og:description" content="本文介绍postgresql的部分基本数据类型和基本操作,包括时间类型,字符串操作,数组操作等">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://www.iteway.com/uploads/fileImages/postgresql.jpg">
+<meta property="og:updated_time" content="2018-01-19T08:52:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="postgresql入门详细总结">
+<meta name="twitter:description" content="本文介绍postgresql的部分基本数据类型和基本操作,包括时间类型,字符串操作,数组操作等">
+<meta name="twitter:image" content="https://www.iteway.com/uploads/fileImages/postgresql.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.iteway.com/2018/01/19/postgresql入门详细总结/"/>
+
+
+
+
+
+  <title>postgresql入门详细总结 | JET明</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cea383eef1c0928708c1b3c5422f0f58";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <!-- Google AdSense start -->
+  <!-- <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-3027319329343864",
+    enable_page_level_ads: true
+  });
+</script> -->
+  <!-- Google AdSense end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">JET明</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">永远前进</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.iteway.com/2018/01/19/postgresql入门详细总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小明">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JET明">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">postgresql入门详细总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-19T16:52:18+08:00">
+                2018-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/sql/" itemprop="url" rel="index">
+                    <span itemprop="name">sql</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/01/19/postgresql入门详细总结/" class="leancloud_visitors" data-flag-title="postgresql入门详细总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,866 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <img src="/uploads/fileImages/postgresql.jpg" title="postgresql图">
+<blockquote class="blockquote-center"><p>本文介绍postgresql的部分基本数据类型和基本操作,包括时间类型,字符串操作,数组操作等</p>
+</blockquote>
+<a id="more"></a>
+<p>postgresql下载地址:<a href="https://www.postgresql.org/download/" target="_blank" rel="noopener">https://www.postgresql.org/download/</a></p>
+<h1 id="一、字符串操作"><a href="#一、字符串操作" class="headerlink" title="一、字符串操作"></a>一、字符串操作</h1><h2 id="lpad"><a href="#lpad" class="headerlink" title="lpad"></a>lpad</h2><p>字符和字符串lpad(要补齐的字符串,总长度,补上的字符串)  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">lpad</span>(<span class="string">'ab'</span>,<span class="number">4</span>,<span class="string">'0'</span>) <span class="keyword">as</span> ab_lpad, </span><br><span class="line">rpad(<span class="string">'ab'</span>,<span class="number">4</span>,<span class="string">'0'</span>) <span class="keyword">as</span> ab_rpad, </span><br><span class="line"><span class="keyword">lpad</span>(<span class="string">'abcde'</span>,<span class="number">4</span>,<span class="string">'0'</span>) <span class="keyword">as</span> ab_lpad_trunc;</span><br></pre></td></tr></table></figure>
+<h2 id="split-part"><a href="#split-part" class="headerlink" title="split_part"></a>split_part</h2><p>postgresql分隔字符串,split_part<br><strong>语法:split_part(string text, delimiter text, column integer)</strong>  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> split_part(<span class="string">'abc.123.z45'</span>, <span class="string">'.'</span>, <span class="number">2</span>);    </span><br><span class="line"><span class="keyword">select</span> split_part(<span class="string">'abc_123_z45'</span>, <span class="string">'_'</span>, <span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="string-to-array-text-text"><a href="#string-to-array-text-text" class="headerlink" title="string_to_array(text, text)"></a>string_to_array(text, text)</h2><p>string_to_array(text, text)可以将一个字符串 拆分成为一个数组 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a[<span class="number">1</span>] <span class="keyword">from</span> string_to_array(<span class="string">'abc_123_z45'</span>, <span class="string">'_'</span>) <span class="keyword">as</span> a;</span><br></pre></td></tr></table></figure>
+<h2 id="将字符串展开为若干记录"><a href="#将字符串展开为若干记录" class="headerlink" title="将字符串展开为若干记录"></a>将字符串展开为若干记录</h2><p><code>&quot;unnest&quot;(anyarray) string_to_array 和 unnest</code>结合使用, 可以将字符串展开为若干记录  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a[<span class="number">1</span>] <span class="keyword">from</span> string_to_array(<span class="string">'abc_123_z45'</span>, <span class="string">'_'</span>) <span class="keyword">as</span> a;</span><br></pre></td></tr></table></figure>
+<h1 id="二、postgresql正则表达式和模式匹配"><a href="#二、postgresql正则表达式和模式匹配" class="headerlink" title="二、postgresql正则表达式和模式匹配"></a>二、postgresql正则表达式和模式匹配</h1><h2 id="模式匹配"><a href="#模式匹配" class="headerlink" title="模式匹配"></a>模式匹配</h2><blockquote>
+<p>\1 和 \2是模式匹配表达式中的元素. <code>\(</code> 是特殊字符 ( 的转义  </p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> regexp_replace(</span><br><span class="line"><span class="string">'6197306254'</span>,</span><br><span class="line"><span class="string">'([0-9]&#123;3&#125;)([0-9]&#123;3&#125;)([0-9]&#123;4&#125;)'</span>,</span><br><span class="line">E<span class="string">'\(\\1) \\2-\\3'</span>) <span class="keyword">as</span> x;`</span><br></pre></td></tr></table></figure>
+<p><strong>将文本中的电话号码作为单独的行返回</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> unnest(regexp_matches(<span class="string">'Cell (619)852-5083. Casa 619-730-6254. Besame mucho.'</span>,</span><br><span class="line">                                E<span class="string">'[(]&#123;0,1&#125;[0-9]&#123;3&#125;[)-.]&#123;0,1&#125;[0-9]&#123;3&#125;[-.]&#123;0,1&#125;[0-9]&#123;4&#125;'</span>,<span class="string">'g'</span>)</span><br><span class="line">                            ) <span class="keyword">as</span> x;</span><br></pre></td></tr></table></figure>
+<h2 id="运算符"><a href="#运算符" class="headerlink" title="~ 运算符"></a>~ 运算符</h2><p>除了正则表达式专用的那些函数外,正则表达式还和 ~ 运算符 一起使用,</p>
+<p>如下:查出所有内嵌了电话号码的字符串  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> description <span class="keyword">from</span> mytable</span><br><span class="line"><span class="keyword">where</span> description ~ E<span class="string">'[(]&#123;0,1&#125;[0-9]&#123;3&#125;[)-.]&#123;0,1&#125;[0-9]&#123;3&#125;[-.]&#123;0,1&#125;[0-9]&#123;4&#125;'</span>;</span><br></pre></td></tr></table></figure>
+<h1 id="三、postgresql时间类型"><a href="#三、postgresql时间类型" class="headerlink" title="三、postgresql时间类型"></a>三、postgresql时间类型</h1><blockquote>
+<p>最先进的,最全的时间类型  </p>
+</blockquote>
+<p>时间加减法：一个小时前  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_timestamp</span> - <span class="built_in">interval</span> <span class="string">'1 hour'</span>;</span><br></pre></td></tr></table></figure>
+<p>提取当前小时</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">extract</span>(<span class="keyword">hour</span> <span class="keyword">from</span> <span class="keyword">current_timestamp</span>);</span><br></pre></td></tr></table></figure>
+<p>获取当前时间戳</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">current_timestamp</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="keyword">now</span>()::<span class="keyword">timestamp</span>(<span class="number">0</span>)<span class="keyword">without</span> <span class="keyword">time</span> zone;</span><br><span class="line"><span class="keyword">select</span> to_timestamp(to_char(<span class="keyword">current_timestamp</span>,<span class="string">'yyyy-mm-dd hh24'</span>),<span class="string">'yyyy-mm-dd hh24'</span>);</span><br><span class="line">#获取部分时：hour</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">EXTRACT</span>(<span class="keyword">HOUR</span> <span class="keyword">FROM</span> <span class="keyword">current_timestamp</span>) - <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="1-date"><a href="#1-date" class="headerlink" title="1. date"></a>1. date</h2><p>该类型仅存储 月,日,年,没有失去 , 小时 , 分 和 秒 的信息  </p>
+<h2 id="2-time"><a href="#2-time" class="headerlink" title="2. time"></a>2. time</h2><p> 该类型仅存储 小时,分,秒 信息, 不带日期 和 时区信息  </p>
+<h2 id="3-timestamp"><a href="#3-timestamp" class="headerlink" title="3. timestamp"></a>3. timestamp</h2><p> 该数据类型存储了日期(年月日) 和 时间(时分秒)  </p>
+<h2 id="4-timestamptz"><a href="#4-timestamptz" class="headerlink" title="4. timestamptz"></a>4. timestamptz</h2><p>  存储了日期 和 时间 以及时区  </p>
+<h2 id="5-timetz"><a href="#5-timetz" class="headerlink" title="5. timetz"></a>5. timetz</h2><p>携带了时区信息 没有日期信息  </p>
+<h2 id="6-interval"><a href="#6-interval" class="headerlink" title="6. interval"></a>6. interval</h2><p>该类型描述了时间段的长度,单位可以是小时,天, 月, 分钟, 或者 其他粒度.该类型适用于数学运算场景  </p>
+<h2 id="7-tsrange"><a href="#7-tsrange" class="headerlink" title="7. tsrange"></a>7. tsrange</h2><p> 开区间闭区间限定符,定义了一个 从14:00 开始 到 15:00之前结束的一个时间段 timestamp  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'[2012-01-01 14:00 2012-01-01 15:00)'</span>::tsrange;</span><br></pre></td></tr></table></figure>
+<h2 id="8-tstzrange"><a href="#8-tstzrange" class="headerlink" title="8. tstzrange"></a>8. tstzrange</h2><p>定义 timestamptz 的开区间和闭区间</p>
+<h2 id="9-daterange"><a href="#9-daterange" class="headerlink" title="9. daterange"></a>9. daterange</h2><p> 定义日期的开区间和闭区间  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'2016-05-26 3:43:00 PM'</span>::<span class="keyword">timestamp</span> - <span class="built_in">interval</span> <span class="string">'1 hour'</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="string">'2016-05-26 15:43:00'</span>::<span class="keyword">timestamp</span> - <span class="built_in">interval</span> <span class="string">'1 hour'</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="重叠运算"><a href="#重叠运算" class="headerlink" title="重叠运算"></a>重叠运算</h2><p> 对时间戳和日期类型:使用 OVERLAPS overlaps 时间区域重叠运算符  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> (<span class="string">'2012-10-25 10:00 AM'</span>::<span class="keyword">timestamp</span> ,<span class="string">'2012-10-25 2:00 PM'</span>::<span class="keyword">timestamp</span>) overlaps </span><br><span class="line">(<span class="string">'2012-10-25 11:00 AM'</span>::<span class="keyword">timestamp</span> ,<span class="string">'2012-10-25 2:00 PM'</span>::<span class="keyword">timestamp</span>) <span class="keyword">as</span> x,</span><br><span class="line">(<span class="string">'2012-10-25'</span>::<span class="built_in">date</span> ,<span class="string">'2012-10-26'</span>::<span class="built_in">date</span>) overlaps </span><br><span class="line">(<span class="string">'2012-10-26'</span>::<span class="built_in">date</span> ,<span class="string">'2012-10-27'</span>::<span class="built_in">date</span>) <span class="keyword">as</span> y;`</span><br></pre></td></tr></table></figure>
+<h2 id="生成整数序列"><a href="#生成整数序列" class="headerlink" title="生成整数序列"></a>生成整数序列</h2><p>使用可选的步长形参,来生成整数序列</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> x <span class="keyword">from</span> generate_series(<span class="number">1</span>,<span class="number">51</span>,<span class="number">13</span>) <span class="keyword">as</span> x;</span><br><span class="line">``` </span><br><span class="line">## `generate_series`  </span><br><span class="line">`generate_series` 用 `interval` 作为步长生成时间序列数组</span><br><span class="line"></span><br><span class="line">```sql</span><br><span class="line"><span class="keyword">select</span> (dt - <span class="built_in">interval</span> <span class="string">'1 day'</span>)::<span class="built_in">date</span> <span class="keyword">as</span> eom</span><br><span class="line">    <span class="keyword">from</span>  </span><br><span class="line">generate_series(<span class="string">'2012-02-01'</span>,<span class="string">'2012-06-30'</span>,<span class="built_in">interval</span> <span class="string">'1 month'</span>) <span class="keyword">as</span> dt;</span><br></pre></td></tr></table></figure>
+<h2 id="抽取时间类型的一部分"><a href="#抽取时间类型的一部分" class="headerlink" title="抽取时间类型的一部分"></a>抽取时间类型的一部分</h2><p><code>date_part</code> 或者  <code>to_char</code>  从日期类型和时间类型的数据值中抽取一部分 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> dt, date_part(<span class="string">'hour'</span>,dt) <span class="keyword">as</span> mh,to_char(dt,<span class="string">'HH12:MI:AM'</span>) <span class="keyword">as</span> tm</span><br><span class="line"><span class="keyword">from</span> generate_series(<span class="string">'2012-03-11 12:30 AM'</span>,<span class="string">'2012-03-11 3:00 AM'</span>,<span class="built_in">interval</span> <span class="string">'15 minutes'</span>) <span class="keyword">as</span> dt;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>generate_series</code> 函数默认生成的是 <code>timestamptz</code> 类型数据,需要显示转换为timestamp类型</p>
+</blockquote>
+<p>更多时间计算问题请见:<a href="https://www.cnblogs.com/mchina/archive/2013/04/15/3010418.html" target="_blank" rel="noopener">PostgreSQL的时间/日期函数使用</a></p>
+<h1 id="四-数组类型"><a href="#四-数组类型" class="headerlink" title="四 数组类型"></a>四 数组类型</h1><h2 id="1-数组构造函数"><a href="#1-数组构造函数" class="headerlink" title="1.数组构造函数"></a>1.数组构造函数</h2><p>array(子查询,或者 数组) </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="built_in">array</span>[<span class="number">2001</span>,<span class="number">2002</span>,<span class="number">2003</span>] <span class="keyword">as</span> yrs;</span><br><span class="line"><span class="keyword">select</span> <span class="built_in">array</span>(</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">distinct</span> date_part(<span class="string">'year'</span>,log_ts) <span class="keyword">from</span> <span class="keyword">logs</span> order_by date_part(<span class="string">'year'</span>,log_ts)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h2 id="字符串数组转化为数组"><a href="#字符串数组转化为数组" class="headerlink" title="字符串数组转化为数组"></a>字符串数组转化为数组</h2><p>可以直接把一个字符串格式书写的数组转化为真正的数组,语法如下</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'&#123;Alex,Sonia&#125;'</span>::<span class="built_in">text</span>[] <span class="keyword">as</span> <span class="keyword">name</span>, <span class="string">'&#123;43,40&#125;'</span>::<span class="built_in">smallint</span>[] <span class="keyword">as</span> age;</span><br></pre></td></tr></table></figure>
+<h2 id="string-to-array-text-text-1"><a href="#string-to-array-text-text-1" class="headerlink" title="string_to_array(text, text)"></a>string_to_array(text, text)</h2><p>string_to_array(text, text) 将一个用固定分隔符分隔的字符串转化为数组</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> string_to_array(<span class="string">'ca.ma.tx'</span>,<span class="string">'.'</span>) <span class="keyword">as</span> estados;</span><br></pre></td></tr></table></figure>
+<h2 id="array-agg"><a href="#array-agg" class="headerlink" title="array_agg"></a>array_agg</h2><p>array_agg是一种变型聚合函数,它可以使用一组任何类型的数据并将其转换为数组</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> array_agg(log_ts <span class="keyword">order</span> <span class="keyword">by</span> log_ts) <span class="keyword">as</span> x <span class="keyword">from</span> <span class="keyword">logs</span> </span><br><span class="line">    <span class="keyword">where</span> log_ts <span class="keyword">between</span> <span class="string">'2011-01-01'</span>::timestamptz <span class="keyword">and</span> <span class="string">'2011-01-15'</span>::timestamptz;</span><br></pre></td></tr></table></figure>
+<h2 id="2-引用数组中的元素"><a href="#2-引用数组中的元素" class="headerlink" title="2.引用数组中的元素"></a>2.引用数组中的元素</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a[<span class="number">1</span>] <span class="keyword">from</span> string_to_array(<span class="string">'abc_123_z45_12s_12_we'</span>, <span class="string">'_'</span>) <span class="keyword">as</span> a;</span><br></pre></td></tr></table></figure>
+<h2 id="3-数组拆分与连接"><a href="#3-数组拆分与连接" class="headerlink" title="3.数组拆分与连接"></a>3.数组拆分与连接</h2><h3 id="第一个和第5个元素-a-1-5"><a href="#第一个和第5个元素-a-1-5" class="headerlink" title="第一个和第5个元素  a[1:5]"></a>第一个和第5个元素  a[1:5]</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a[<span class="number">1</span>:<span class="number">5</span>] <span class="keyword">from</span> string_to_array(<span class="string">'abc_123_z45_12s_12_we'</span>, <span class="string">'_'</span>) <span class="keyword">as</span> a;   </span><br><span class="line"><span class="keyword">select</span> a[<span class="number">1</span>:<span class="number">3</span>] || a[<span class="number">4</span>:<span class="number">5</span>] <span class="keyword">from</span> string_to_array(<span class="string">'abc_123_z45_12s_12_we'</span>, <span class="string">'_'</span>) <span class="keyword">as</span> a;</span><br></pre></td></tr></table></figure>
+<h3 id="将数组元素展开为记录行-unnest"><a href="#将数组元素展开为记录行-unnest" class="headerlink" title="将数组元素展开为记录行 unnest"></a>将数组元素展开为记录行 <code>unnest</code></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> unnest(<span class="string">'&#123;xox,oxo,xox&#125;'</span>::<span class="built_in">char</span>(<span class="number">3</span>)[]) <span class="keyword">as</span> tic_tac_toe</span><br></pre></td></tr></table></figure>
+<div class="note primary"><p>你可以在一个 SELECT 语句中使用多个 unnest 函数，<br>但如果每个 unnest 展开后的记录行数不一致，或者说“对不齐”，<br>那么得到的最终结果将是这些结果集之间的笛卡儿积，看起来不太好理解。</p></div>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">unnest(<span class="string">'&#123;three,blind,mice&#125;'</span>::<span class="built_in">text</span>[]) <span class="keyword">As</span>  t,</span><br><span class="line">unnest(<span class="string">'&#123;1,2,3&#125;'</span>::<span class="built_in">smallint</span>[]) <span class="keyword">As</span> i;</span><br></pre></td></tr></table></figure>
+<div class="note primary"><p>如果你从上述一个数组中拿掉一个元素，那么两个数组的元素就无法对齐了，此时展开得到的结果如示例下</p></div>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">unnest( <span class="string">'&#123;blind,mouse&#125;'</span>::<span class="built_in">varchar</span>[]) <span class="keyword">As</span> v,</span><br><span class="line">unnest(<span class="string">'&#123;1,2,3&#125;'</span>::<span class="built_in">smallint</span>[]) <span class="keyword">As</span> i;</span><br></pre></td></tr></table></figure>
+<h2 id="多实参-unnest-函数-只能在from-子句中出现"><a href="#多实参-unnest-函数-只能在from-子句中出现" class="headerlink" title="多实参 unnest 函数,只能在from 子句中出现"></a>多实参 unnest 函数,只能在from 子句中出现</h2><p>使用多实参 unnest 取消不平衡数组的嵌套</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> unnest(<span class="string">'&#123;blind,mouse&#125;'</span>::<span class="built_in">text</span>[], <span class="string">'&#123;1,2,3&#125;'</span>::<span class="built_in">int</span>[]) <span class="keyword">As</span> f(t,i);</span><br></pre></td></tr></table></figure>
+<h1 id="五、区间类型"><a href="#五、区间类型" class="headerlink" title="五、区间类型"></a>五、区间类型</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> int4range(<span class="number">1</span>,<span class="number">5</span>) = <span class="string">'[1,4]'</span>::int4range;</span><br><span class="line"><span class="keyword">select</span> int4range(<span class="number">1</span>,<span class="number">4</span>) = <span class="string">'[1,4]'</span>::int4range;</span><br><span class="line"><span class="keyword">select</span> int4range(<span class="number">1</span>,<span class="number">5</span>) @&gt; <span class="string">'[1,4]'</span>::int4range;</span><br><span class="line"><span class="keyword">select</span> <span class="number">4</span> &lt;@ <span class="string">'[1,4]'</span>::int4range;</span><br></pre></td></tr></table></figure>
+<h2 id="区间操作和集合操作"><a href="#区间操作和集合操作" class="headerlink" title="区间操作和集合操作"></a>区间操作和集合操作</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'[2011-01-01,2011-03-01)'</span>::tsrange @&gt; <span class="string">'2011-01-10'</span>::<span class="keyword">timestamp</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="string">'2011-01-10'</span>::<span class="keyword">timestamp</span> <span class="keyword">between</span> <span class="string">'2011-01-01'</span>::<span class="keyword">timestamp</span> </span><br><span class="line"><span class="keyword">and</span> <span class="string">'2011-01-10'</span>::<span class="keyword">timestamp</span> ;</span><br></pre></td></tr></table></figure>
+<h2 id="离散区间"><a href="#离散区间" class="headerlink" title="离散区间"></a>离散区间</h2><p>int4range、int8range: 这是整数型离散区间，其定义符合前闭后开的规范化要求。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'[-2,2]'</span>::int4range; <span class="comment">--[-2,3)</span></span><br><span class="line"><span class="keyword">select</span> <span class="number">1</span> &lt;@ <span class="string">'[-2,2]'</span>::int4range; <span class="comment">--t</span></span><br><span class="line"><span class="keyword">select</span> <span class="number">1.2</span> &lt;@ <span class="string">'[-2,2]'</span>::int4range; <span class="comment">--错误</span></span><br></pre></td></tr></table></figure>
+<div class="note warning"><p>错误:  操作符不存在: <code>numeric &lt;@ int4range</code><br>没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.</p></div>
+<h2 id="numrange"><a href="#numrange" class="headerlink" title="numrange"></a>numrange</h2><p>这是连续区间，可以用于描述小数、浮点数、或者双精度数字的区间。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'[-2,2]'</span>::numrange; <span class="comment">--[-2,2]</span></span><br><span class="line"><span class="keyword">select</span> <span class="number">1.2</span> &lt;@ <span class="string">'[-2,2]'</span>::numrange; <span class="comment">--t</span></span><br></pre></td></tr></table></figure>
+<h2 id="daterange"><a href="#daterange" class="headerlink" title="daterange"></a>daterange</h2><p>这是不带时区信息的日期离散区间。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="string">'[2011-01-01,2011-03-01)'</span>::daterange <span class="comment">--[2011-01-01,2011-03-01)</span></span><br><span class="line"><span class="keyword">SELECT</span> daterange(<span class="string">'2013-01-05'</span>,<span class="string">'infinity'</span>,<span class="string">'[]'</span>); <span class="comment">--[2013-01-05,infinity)</span></span><br></pre></td></tr></table></figure>
+<h2 id="tsrange、tstzrange"><a href="#tsrange、tstzrange" class="headerlink" title="tsrange、tstzrange"></a>tsrange、tstzrange</h2><p> 这是时间戳（日期加时间）类型的连续区间，秒值部分支持小数。tsrange 不带时区信息，tstzrange 带时区信息。</p>
+<h2 id="定义含区间类型字段的表"><a href="#定义含区间类型字段的表" class="headerlink" title="定义含区间类型字段的表"></a>定义含区间类型字段的表</h2><div class="note primary"><p>时间类型区间是很常用的，假设你有一张 employment 表，表中存储了公司聘请雇员的历史记录。<br>你可以像示例 5-20 那样用时间区间来定义一个员工在公司的服务年限，<br>而不需要用起始时间和结束时间两个字段来表示。在本例中，<br>我们给 period 列添加了一个索引以使用我们的区间列加速查询。</p></div>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> employment (<span class="keyword">id</span> <span class="built_in">serial</span> PRIMARY <span class="keyword">KEY</span>, employee <span class="built_in">varchar</span>(<span class="number">20</span>), <span class="keyword">period</span> daterange);</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_employment_period <span class="keyword">ON</span> employment <span class="keyword">USING</span> gist (<span class="keyword">period</span>); </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> employment (employee, <span class="keyword">period</span>)</span><br><span class="line"><span class="keyword">VALUES</span> (<span class="string">'Alex'</span>, <span class="string">'[2012-04-24, infinity)'</span>::daterange), </span><br><span class="line">		(<span class="string">'Sonia'</span>, <span class="string">'[2011-04-24,2012-06-01)'</span>::daterange), </span><br><span class="line">		(<span class="string">'Leo'</span>, <span class="string">'[2012-06-20, 2013-04-20)'</span>::daterange), </span><br><span class="line">		(<span class="string">'Regina'</span>, <span class="string">'[2012-06-20, 2013-04-20)'</span>::daterange);</span><br></pre></td></tr></table></figure>
+<h2 id="适用于区间类型的运算符"><a href="#适用于区间类型的运算符" class="headerlink" title="适用于区间类型的运算符"></a>适用于区间类型的运算符</h2><blockquote>
+<p>区间类型上用得最多的两个运算符是重叠运算符（&amp;&amp;）和包含运算符（@&gt;）。<br>要了解区间运算符的完整列表，请参考 PostgreSQL 官方手册中的“区间类型运算符”一节</p>
+</blockquote>
+<h3 id="1-重叠运算符"><a href="#1-重叠运算符" class="headerlink" title="1. 重叠运算符"></a>1. 重叠运算符</h3><div class="note primary"><p>顾名思义，重叠运算符 &amp;&amp; 的作用就是判定两个区间是否有重叠部分，如果有则返回 true，否则返回 false。</p></div>
+<p><strong>示例 ：查询谁与谁曾经同时在公司工作过</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> e1.employee, string_agg(<span class="keyword">DISTINCT</span> e2.employee, <span class="string">', '</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> e2.employee) <span class="keyword">As</span></span><br><span class="line">colleagues</span><br><span class="line"><span class="keyword">FROM</span> employment <span class="keyword">As</span> e1 <span class="keyword">INNER</span> <span class="keyword">JOIN</span> employment <span class="keyword">As</span> e2</span><br><span class="line"><span class="keyword">ON</span> e1.period &amp;&amp; e2.period</span><br><span class="line"><span class="keyword">WHERE</span> e1.employee &lt;&gt; e2.employee</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> e1.employee;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- employee | colleagues</span></span><br><span class="line"><span class="comment">-- ---------+-------</span></span><br><span class="line"><span class="comment">-- Alex     | Leo, Regina, Sonia</span></span><br><span class="line"><span class="comment">-- Leo      | Alex, Regina</span></span><br><span class="line"><span class="comment">-- Regina   | Alex, Leo</span></span><br><span class="line"><span class="comment">-- Sonia    | Alex</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-包含与被包含关系运算符"><a href="#2-包含与被包含关系运算符" class="headerlink" title="2. 包含与被包含关系运算符"></a>2. 包含与被包含关系运算符</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> employee <span class="keyword">FROM</span> employment <span class="keyword">WHERE</span> <span class="keyword">period</span> @&gt; <span class="keyword">CURRENT_DATE</span> <span class="keyword">GROUP</span> <span class="keyword">BY</span> employee;</span><br><span class="line"><span class="comment">-- employee</span></span><br><span class="line"><span class="comment">-- ----</span></span><br><span class="line"><span class="comment">-- Alex</span></span><br></pre></td></tr></table></figure>
+<h1 id="六、JSON数据类型"><a href="#六、JSON数据类型" class="headerlink" title="六、JSON数据类型"></a>六、JSON数据类型</h1><h2 id="JSON类型"><a href="#JSON类型" class="headerlink" title="JSON类型"></a>JSON类型</h2><p>形如：{key:value}</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> families_j (<span class="keyword">id</span> <span class="built_in">serial</span> PRIMARY <span class="keyword">KEY</span>, profile <span class="keyword">json</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> families_j (profile) <span class="keyword">VALUES</span> (</span><br><span class="line"><span class="string">'&#123;"name":"Gomez", "members":[</span></span><br><span class="line"><span class="string">&#123;"member":&#123;"relation":"padre", "name":"Alex"&#125;&#125;,</span></span><br><span class="line"><span class="string">&#123;"member":&#123;"relation":"madre", "name":"Sonia"&#125;&#125;,</span></span><br><span class="line"><span class="string">&#123;"member":&#123;"relation":"hijo", "name":"Brandon"&#125;&#125;,</span></span><br><span class="line"><span class="string">&#123;"member":&#123;"relation":"hija", "name":"Azaleah"&#125;&#125;</span></span><br><span class="line"><span class="string">]&#125;'</span>);</span><br></pre></td></tr></table></figure>
+<div class="note primary"><p>json_extract_path、json_array_elements 以及 json_extract_path_text<br>这三个函数来读取表中所有家庭成员的信息。</p></div>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> json_extract_path_text(profile, <span class="string">'name'</span>) <span class="keyword">As</span> family,  </span><br><span class="line">json_extract_path_text(</span><br><span class="line">json_array_elements(</span><br><span class="line">	json_extract_path(profile,<span class="string">'members'</span>)), <span class="string">'member'</span>,<span class="string">'name'</span> ) <span class="keyword">As</span> <span class="keyword">member</span></span><br><span class="line"> <span class="keyword">FROM</span> families_j;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">select</span> json_extract_path_text(json_array_elements(json_extract_path(profile,<span class="string">'members'</span>)),<span class="string">'member'</span>,<span class="string">'name'</span>) <span class="keyword">from</span> families_j;</span><br></pre></td></tr></table></figure>
+<div class="note primary"><p>运算符 -&gt;&gt; 和 #&gt;&gt; 是 json_extract_path_text 的简写。#&gt;&gt; 取用某个路径数组。</p></div>
+<p>示例使用这些符号运算符对上面进行了重写。</p>
+<p><strong>输出JSON数据</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> row_to_json(f) <span class="keyword">As</span> x</span><br><span class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> <span class="keyword">id</span>, profile-&gt;&gt;<span class="string">'name'</span> <span class="keyword">As</span> <span class="keyword">name</span> <span class="keyword">FROM</span> families_j) <span class="keyword">As</span> f;</span><br></pre></td></tr></table></figure>
+<h1 id="七、构建自定义数据类型"><a href="#七、构建自定义数据类型" class="headerlink" title="七、构建自定义数据类型"></a>七、构建自定义数据类型</h1><p>所有表都有一个对应的自定义数据类型</p>
+<div class="note primary"><p>尽管仅仅通过建表就可以轻松创建复合数据类型，<br>但有时候我们仍会需要从头开始构建自己的数据类型。<br>例如，使用以下语句可以构建一个复杂数字数据类型： </p></div>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TYPE</span> complex_number <span class="keyword">AS</span> (r <span class="keyword">double</span> <span class="keyword">precision</span>, i <span class="keyword">double</span> <span class="keyword">precision</span>);</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> circuits (circuit_id <span class="built_in">serial</span> PRIMARY <span class="keyword">KEY</span>, ac_volt complex_number);</span><br><span class="line"><span class="keyword">SELECT</span> circuit_id, (ac_volt).* <span class="keyword">FROM</span> circuits;</span><br><span class="line"><span class="keyword">SELECT</span> circuit_id, (ac_volt).r, (ac_volt).i <span class="keyword">FROM</span> circuits;</span><br></pre></td></tr></table></figure>
+<h2 id="为自定义数据类型构建运算符和函数"><a href="#为自定义数据类型构建运算符和函数" class="headerlink" title="为自定义数据类型构建运算符和函数"></a>为自定义数据类型构建运算符和函数</h2><p>创建运算符的第一步是创建其底层实现函数<br> 示例 ：为 complex_number 创建底层实现函数</p>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">FUNCTION</span> <span class="keyword">add</span>(complex_number, complex_number) <span class="keyword">RETURNS</span> complex_number <span class="keyword">AS</span></span><br><span class="line">$$</span><br><span class="line"> <span class="keyword">SELECT</span> ( (<span class="keyword">COALESCE</span>(($<span class="number">1</span>).r,<span class="number">0</span>) + <span class="keyword">COALESCE</span>(($<span class="number">2</span>).r,<span class="number">0</span>)),</span><br><span class="line"> (<span class="keyword">COALESCE</span>(($<span class="number">1</span>).i,<span class="number">0</span>) + <span class="keyword">COALESCE</span>(($<span class="number">2</span>).i,<span class="number">0</span>)) )::complex_number;</span><br><span class="line">$$</span><br><span class="line">language  sql;</span><br></pre></td></tr></table></figure>
+<p> 接下来要创建一个运算符来代表此函数<br> 示例：为 complex_number 类型定义 + 运算符</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OPERATOR</span> +(</span><br><span class="line">	<span class="keyword">PROCEDURE</span> = <span class="keyword">add</span>,</span><br><span class="line">	LEFTARG = complex_number,</span><br><span class="line">	RIGHTARG = complex_number,</span><br><span class="line">COMMUTATOR = +);</span><br><span class="line"><span class="comment">-- 然后我们测试一下这个新的 + 运算符：  </span></span><br><span class="line"><span class="keyword">SELECT</span> (<span class="number">1</span>,<span class="number">2</span>)::complex_number + (<span class="number">3</span>,<span class="number">-10</span>)::complex_number; </span><br><span class="line"><span class="comment">-- 输出结果是 (4,-8)。</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>虽然我们在此处没有举例说明，但你可以对函数和运算符进行重载，  </li>
+<li>以使其可以接受多种不同类型的输入。例如，你可以创建一个支持 complex_number   </li>
+<li>和 integer 相加的 add 函数和相应的 + 计算符，这就实现了对原逻辑的扩展。  </li>
+<li>支持自定义数据类型和运算符让 PostgreSQL 从机制上具有了自我演进的能力，  </li>
+<li>开源社区无数开发人员利用此能力为 PostgreSQL 平台添砖加瓦，  </li>
+<li>随着这个开发平台的羽翼日渐丰满，我们离“一切皆以表驱动”的理想境界也越来越近。</li>
+</ul>
+<p>在 <a href="http://www.postgresql.org/docs/current/interactive/sql-createoperator.html" target="_blank" rel="noopener">PostgreSQL 官方手册的“创建运算符”</a>这一节中你可以看到系统允许使用哪些字符来定义新的运算符。<br>参考<a href="href=http://www.postgresql.org/docs/current/interactive/xoper-optimization.html>http://www.postgresql.org/docs/current/interactive/xoper-optimization.html</a>" title="}这一节的内容。</p>">官方手册中“运算符的优化信息” <a< a=""></a<></a></p>
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------感谢您的阅读<i class="fa fa-paw"></i>祝您生活愉快!-------------</div>
+    
+</div>
+      
+    </div>
+    <div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2018/01/19/postgresql入门详细总结/">postgresql入门详细总结</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 小明 的个人博客">小明</a></p>
+  <p><span>发布时间:</span>2018年01月19日 - 16:01</p>
+  <p><span>最后更新:</span>2018年01月19日 - 16:01</p>
+  <p><span>原始链接:</span><a href="/2018/01/19/postgresql入门详细总结/" title="postgresql入门详细总结">https://www.iteway.com/2018/01/19/postgresql入门详细总结/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://www.iteway.com/2018/01/19/postgresql入门详细总结/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+      
+    </div>
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>支持一杯咖啡</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpeg" alt="小明 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/postgresql/" rel="tag"><i class="fa fa-tag"></i> postgresql</a>
+          
+            <a href="/tags/sql/" rel="tag"><i class="fa fa-tag"></i> sql</a>
+          
+        </div>
+      
+
+      
+      
+        <div class="post-widgets">
+        
+
+        
+
+        
+          
+          <div id="needsharebutton-postbottom">
+            <span class="btn">
+              <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </span>
+          </div>
+        
+        </div>
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/19/一名3年工作经验的程序员应该具备的技能/" rel="next" title="一名3年工作经验的程序员应该具备的技能">
+                <i class="fa fa-chevron-left"></i> 一名3年工作经验的程序员应该具备的技能
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/19/Markdown语法和MWeb写作使用说明/" rel="prev" title="Markdown语法和MWeb写作使用说明">
+                Markdown语法和MWeb写作使用说明 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="小明" />
+            
+              <p class="site-author-name" itemprop="name">小明</p>
+              <p class="site-description motion-element" itemprop="description">会当凌绝顶，一览众山小。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://yufan.me/" title="且听书吟" target="_blank" rel="external nofollow">且听书吟</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://alexinea.com/" title="Alexinea" target="_blank" rel="external nofollow">Alexinea</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、字符串操作"><span class="nav-text">一、字符串操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#lpad"><span class="nav-text">lpad</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#split-part"><span class="nav-text">split_part</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#string-to-array-text-text"><span class="nav-text">string_to_array(text, text)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#将字符串展开为若干记录"><span class="nav-text">将字符串展开为若干记录</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、postgresql正则表达式和模式匹配"><span class="nav-text">二、postgresql正则表达式和模式匹配</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#模式匹配"><span class="nav-text">模式匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运算符"><span class="nav-text">~ 运算符</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、postgresql时间类型"><span class="nav-text">三、postgresql时间类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-date"><span class="nav-text">1. date</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-time"><span class="nav-text">2. time</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-timestamp"><span class="nav-text">3. timestamp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-timestamptz"><span class="nav-text">4. timestamptz</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-timetz"><span class="nav-text">5. timetz</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-interval"><span class="nav-text">6. interval</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-tsrange"><span class="nav-text">7. tsrange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-tstzrange"><span class="nav-text">8. tstzrange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-daterange"><span class="nav-text">9. daterange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重叠运算"><span class="nav-text">重叠运算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成整数序列"><span class="nav-text">生成整数序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#抽取时间类型的一部分"><span class="nav-text">抽取时间类型的一部分</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四-数组类型"><span class="nav-text">四 数组类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-数组构造函数"><span class="nav-text">1.数组构造函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字符串数组转化为数组"><span class="nav-text">字符串数组转化为数组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#string-to-array-text-text-1"><span class="nav-text">string_to_array(text, text)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#array-agg"><span class="nav-text">array_agg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-引用数组中的元素"><span class="nav-text">2.引用数组中的元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-数组拆分与连接"><span class="nav-text">3.数组拆分与连接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一个和第5个元素-a-1-5"><span class="nav-text">第一个和第5个元素  a[1:5]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将数组元素展开为记录行-unnest"><span class="nav-text">将数组元素展开为记录行 unnest</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多实参-unnest-函数-只能在from-子句中出现"><span class="nav-text">多实参 unnest 函数,只能在from 子句中出现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#五、区间类型"><span class="nav-text">五、区间类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#区间操作和集合操作"><span class="nav-text">区间操作和集合操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#离散区间"><span class="nav-text">离散区间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#numrange"><span class="nav-text">numrange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#daterange"><span class="nav-text">daterange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tsrange、tstzrange"><span class="nav-text">tsrange、tstzrange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定义含区间类型字段的表"><span class="nav-text">定义含区间类型字段的表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#适用于区间类型的运算符"><span class="nav-text">适用于区间类型的运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-重叠运算符"><span class="nav-text">1. 重叠运算符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-包含与被包含关系运算符"><span class="nav-text">2. 包含与被包含关系运算符</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#六、JSON数据类型"><span class="nav-text">六、JSON数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JSON类型"><span class="nav-text">JSON类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#七、构建自定义数据类型"><span class="nav-text">七、构建自定义数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为自定义数据类型构建运算符和函数"><span class="nav-text">为自定义数据类型构建运算符和函数</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">小明</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">19.3k</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+      <div id="needsharebutton-float">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('-1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("lYC88HFPXwBakeyyMlvpGQIb-gzGzoHsz", "rzPlaIBj3lRza1PQwYjYIe1L");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/needsharebutton/needsharebutton.css">
+
+  
+  
+  <script src="/lib/needsharebutton/needsharebutton.js"></script>
+
+  <script>
+    
+      pbOptions = {};
+      
+          pbOptions.iconStyle = "default";
+      
+          pbOptions.boxForm = "horizontal";
+      
+          pbOptions.position = "bottomCenter";
+      
+          pbOptions.networks = "Weibo,Wechat,Douban,Evernote,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+    
+    
+      flOptions = {};
+      
+          flOptions.iconStyle = "default";
+      
+          flOptions.boxForm = "horizontal";
+      
+          flOptions.position = "middleRight";
+      
+          flOptions.networks = "Weibo,Wechat,Douban,Evernote,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-float', flOptions);
+    
+  </script>
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+  <script type="text/javascript" src="/js/src/js.cookie.js?v=5.1.4"></script>
+  <script type="text/javascript" src="/js/src/scroll-cookie.js?v=5.1.4"></script>
+
+
+  
+
+</body>
+</html>
